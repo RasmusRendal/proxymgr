@@ -9,9 +9,14 @@ function tabToggle(val) {
 }
 
 document.addEventListener("click", e => {
-	browser.runtime.sendMessage(
-		true
-	).then(tabToggle);
+	console.log(e);
+	if (e.target.id == "button") {
+		browser.runtime.sendMessage(
+			true
+		).then(tabToggle);
+	} else if (e.target.id == "settings"){
+		browser.runtime.openOptionsPage();
+	}
 });
 
 browser.runtime.sendMessage(false).then(tabToggle);

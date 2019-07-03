@@ -1,18 +1,18 @@
-disabled_tabs = [];
+//import { loadProxiesAndPatterns } as common from "./common.js";
+
+var disabled_tabs = [];
+
+var proxies = [];
+
+loadProxiesAndPatterns(loadedProxies => {
+	proxies = loadedProxies.proxies;
+});
 
 browser.proxy.onRequest.addListener(
 	function(details) {
-		if (details.url.includes('local'))
-			return null;
-		if (details.url.substr(0, 7) == "192.168")
-			return null;
 		if (disabled_tabs.indexOf(details.tabId) != -1)
 			return null;
-		return {
-			'type': 'socks',
-			'host': 'localhost',
-			'port': '9050'
-		};
+		return proxies[0].proxyObj;
 	},
 	{
 		'urls': ['<all_urls>']

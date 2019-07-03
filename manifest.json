@@ -6,12 +6,13 @@
   "description": "A browser extension for managing multiple proxies",
 
 	"background": {
-		"scripts": ["scripts/background.js"]
+		"scripts": ["scripts/common.js", "scripts/background.js"]
 	},
 
 	"permissions": [
   	"proxy",
 		"tabs",
+		"storage",
 		"<all_urls>"
 	],
 
@@ -22,6 +23,11 @@
 		},
 		"default_title": "Proxy manager",
 		"default_popup": "popup.html"
+	},
+
+	"options_ui": {
+		"page": "options.html",
+		"browser_style": true
 	},
 
 	"applications": {
