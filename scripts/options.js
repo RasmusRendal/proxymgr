@@ -47,12 +47,12 @@ function addDefaultProxy() {
 	addProxy("0", defaultProxy()[0]);
 }
 
-function loadPatterns() {
+function displayPatterns() {
 	document.getElementById("patternsdiv").style.display = "inherit";
 	document.getElementById("proxiesdiv").style.display = "none";
 }
 
-function loadProxies() {
+function displayProxies() {
 	document.getElementById("patternsdiv").style.display = "none";
 	document.getElementById("proxiesdiv").style.display = "inherit";
 	loadProxies(proxiesLoaded);
@@ -84,10 +84,10 @@ function applySettings() {
 document.addEventListener("click", e => {
 	switch (e.target.id) {
 		case "patterns":
-			loadPatterns();
+			displayPatterns();
 			break;
 		case "proxies":
-			loadProxies();
+			displayProxies();
 			break;
 		case "applySettings":
 			applySettings();
@@ -103,5 +103,5 @@ document.addEventListener("click", e => {
 });
 
 window.onload = function() {
-	loadProxies();
+	displayProxies();
 }

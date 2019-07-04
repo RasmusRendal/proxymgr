@@ -72,7 +72,6 @@ function infoReceived(info) {
 function updateTabProxy() {
 	let v = document.getElementById("proxylist").value;
 	browser.runtime.sendMessage({"instruction": "enable", "toEnable": v}).then(infoReceived);
-
 }
 
 document.addEventListener("click", e => {
@@ -124,6 +123,7 @@ window.onload = function() {
 }
 
 browser.storage.onChanged.addListener((changes, areaName) => {
+	loadProxies(loadButtons);
 	reloadRules();
 });
 reloadRules();
