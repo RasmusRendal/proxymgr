@@ -1,29 +1,31 @@
-function tabToggle(val) {
+function infoReceived(info) {
+	document.getElementById("url").innerHTML = info.url;
+
+	browser.browserAction.setBadgeText({text: info.latestProxy});
+
 	let proxylist = document.getElementById("proxylist");
-	for (let i=0; i<proxylist.children; i++) {
-		prxylist.children[i].style.color = "black";
+	for (let i=0; i<proxylist.children.length; i++) {
+		proxylist.children[i].style.color = "black";
 	}
-	if (val.enabled) {
-		document.getElementById("enableProxy_" + val.name).style.color = "green";
+	if (typeof(info.overwritten_status) != 'undefined') {
+		document.getElementById("enableProxy_" + info.overwritten_status).style.color = "green";
 	}
 }
 
 document.addEventListener("click", e => {
-	console.log(e);
 	if (e.target.id == "settings"){
 		browser.runtime.openOptionsPage();
 	}
 
 	if (e.target.id.substring(0, 12) === "enableProxy_") {
 		let toEnable = e.target.id.substring(12);
-		browser.runtime.sendMessage(toEnable).then(tabToggle);
+		browser.runtime.sendMessage({"instruction": "enable", "toEnable": toEnable}).then(infoReceived);
 	}
 });
 
 function loadButtons(proxies) {
 	html = "";
 	for (let proxy in proxies) {
-		console.log(proxy);
 		let p = proxies[proxy];
 		html += "<button id=\"enableProxy_" +
 			proxy + "\">" +
@@ -34,4 +36,5 @@ function loadButtons(proxies) {
 
 window.onload = function() {
 	loadProxiesAndPatterns(loadButtons);
+	browser.runtime.sendMessage({"instruction": "getinfo"}).then(infoReceived);
 }

@@ -3,21 +3,41 @@ var overwritten_tabs = {};
 var proxies = {};
 
 var rules = {
-	"rend.al": "Direct Internet"
+	"cloud.rend.al": 1,
+	"rend.al": 1
 };
 
-loadProxiesAndPatterns(loadedProxies => {
-	proxies = loadedProxies;
-});
+var latestProxy = "";
+
+function reloadSettings() {
+	loadProxiesAndPatterns(loadedProxies => {
+		proxies = loadedProxies;
+	});
+}
+reloadSettings();
+
+function loadProxy(name) {
+	latestProxy = name;
+	browser.browserAction.setBadgeText({text: name});
+}
+
 
 browser.proxy.onRequest.addListener(
 	function(details) {
 		if (details.tabId in overwritten_tabs) {
-			console.log("nice");
-			console.log(overwritten_tabs);
-			console.log(proxies[overwritten_tabs[details.tabId]]);
-			return proxies[overwritten_tabs[details.tabId]];
+			let toReturn = proxies[overwritten_tabs[details.tabId]];
+			loadProxy(toReturn.name);
+			return toReturn;
 		}
+
+		let baseUrl = getBaseUrl(details.url);
+		if (baseUrl in rules) {
+			let toReturn = proxies[rules[baseUrl]];
+			loadProxy(toReturn.name);
+			return toReturn;
+		}
+
+		loadProxy(proxies[0].name);
 
 		return proxies;
 	},
@@ -29,10 +49,7 @@ browser.proxy.onRequest.addListener(
 function tabClicked(tabInfo, toSet, sendResponse) {
 	let tabID = tabInfo.id;
 	overwritten_tabs[tabID] = toSet;
-	sendResponse({
-		'name': toSet,
-		'enabled': true
-	});
+	getTabStatus(sendResponse);
 }
 
 function getTabStatus(callback) {
@@ -40,18 +57,31 @@ function getTabStatus(callback) {
 		currentWindow: true,
 		active: true
 	}).then(tabarray => {
-		callback(overwritten_tabs[tabarray[0].id]);
+		let tab = tabarray[0];
+		callback({
+			'overwritten_status': overwritten_tabs[tab.id],
+			'url': getBaseUrl(tab.url),
+			'latestProxy': latestProxy
+		});
 	});
 }
 
 function handleMessage(request, sender, sendResponse) {
-	browser.tabs.query({
-		currentWindow: true,
-		active: true
-	})
-	.then(tabarray => tabClicked(tabarray[0], request, sendResponse));
-
-	return true;
+	if (request.instruction == "enable") {
+		browser.tabs.query({
+			currentWindow: true,
+			active: true
+		})
+			.then(tabarray => tabClicked(tabarray[0], request.toEnable, sendResponse));
+		return true;
+	} else if (request.instruction == "getinfo") {
+		getTabStatus(sendResponse);
+		return true;
+	}
 }
 
 browser.runtime.onMessage.addListener(handleMessage);
+
+browser.storage.onChanged.addListener((changes, areaName) => {
+	reloadSettings();
+})
