@@ -1,45 +1,86 @@
+/*
+ * Proxymgr
+ * Copyright © 2019 Rasmus Rendal <rasmus@rend.al>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 var overwritten_tabs = {};
 
 var proxies = {};
 
-var rules = {
-	"cloud.rend.al": 1,
-	"rend.al": 1
-};
+var rules = {};
+
+var colors = [
+	"#0048BA",
+	"#B0BF1A",
+	"#D3212D",
+	"#A4C639",
+	"#2E5894"
+]
 
 var latestProxy = "";
 
 function reloadSettings() {
-	loadProxiesAndPatterns(loadedProxies => {
+	loadProxies(loadedProxies => {
 		proxies = loadedProxies;
 	});
+	loadRules(loadedRules => {
+		rules = loadedRules;
+	})
 }
 reloadSettings();
 
-function loadProxy(name) {
-	latestProxy = name;
-	browser.browserAction.setBadgeText({text: name});
+function loadProxy(url, id, tabId) {
+	name = proxies[id].name;
+	console.log("Loaded " + url + " on tab " + tabId + " with " + name);
+	if (tabId != -1) {
+		browser.browserAction.setBadgeText({text: name, tabId: tabId});
+		browser.browserAction.setBadgeBackgroundColor({color: colors[id], tabId: tabId});
+	} else {
+		browser.browserAction.setBadgeText({text: name});
+		browser.browserAction.setBadgeBackgroundColor({color: colors[id]});
+	}
+	return proxies[id];
 }
 
+function getRuleMatch(url) {
+	let baseUrl = getBaseUrl(url);
+	for (let rule in rules) {
+		if (rule.substring(0, 1) === '*') {
+			let matchPart = baseUrl.substring(rule.length-3);
+			if (rule.substring(2) === matchPart)
+				return rules[rule];
+		} else {
+			if (baseUrl === rule)
+				return rules[rule];
+		}
+	}
+}
 
 browser.proxy.onRequest.addListener(
 	function(details) {
 		if (details.tabId in overwritten_tabs) {
-			let toReturn = proxies[overwritten_tabs[details.tabId]];
-			loadProxy(toReturn.name);
-			return toReturn;
+			return loadProxy(details.url, overwritten_tabs[details.tabId], details.tabId);
 		}
 
-		let baseUrl = getBaseUrl(details.url);
-		if (baseUrl in rules) {
-			let toReturn = proxies[rules[baseUrl]];
-			loadProxy(toReturn.name);
-			return toReturn;
+		let ruleRes = getRuleMatch(details.url);
+		if (ruleRes) {
+			return loadProxy(details.url, ruleRes, details.tabId);
 		}
 
-		loadProxy(proxies[0].name);
-
-		return proxies;
+		return loadProxy(details.url, 0, details.tabId);
 	},
 	{
 		'urls': ['<all_urls>']
@@ -48,7 +89,11 @@ browser.proxy.onRequest.addListener(
 
 function tabClicked(tabInfo, toSet, sendResponse) {
 	let tabID = tabInfo.id;
-	overwritten_tabs[tabID] = toSet;
+	if (toSet != "null") {
+		overwritten_tabs[tabID] = toSet;
+	} else {
+		delete overwritten_tabs[tabID];
+	}
 	getTabStatus(sendResponse);
 }
 
@@ -61,13 +106,14 @@ function getTabStatus(callback) {
 		callback({
 			'overwritten_status': overwritten_tabs[tab.id],
 			'url': getBaseUrl(tab.url),
-			'latestProxy': latestProxy
+			'latestProxy': latestProxy,
+			'subdomains': getSubdomains(tab.url)
 		});
 	});
 }
 
 function handleMessage(request, sender, sendResponse) {
-	if (request.instruction == "enable") {
+	if (request.instruction == "setTabOption") {
 		browser.tabs.query({
 			currentWindow: true,
 			active: true
