@@ -1,18 +1,19 @@
-//import { loadProxiesAndPatterns } as common from "./common.js";
-
-var disabled_tabs = [];
+var overwritten_tabs = {};
 
 var proxies = [];
 
 loadProxiesAndPatterns(loadedProxies => {
-	proxies = loadedProxies.proxies;
+	proxies = loadedProxies;
 });
 
 browser.proxy.onRequest.addListener(
 	function(details) {
-		if (disabled_tabs.indexOf(details.tabId) != -1)
-			return null;
-		return proxies[0].proxyObj;
+		retVal = []
+		for (let proxy in proxies) {
+			let p = proxies[proxy];
+			retVal.push(p.proxyObj);
+		}
+		return retVal;
 	},
 	{
 		'urls': ['<all_urls>']
@@ -35,7 +36,7 @@ function getTabStatus(callback) {
 		currentWindow: true,
 		active: true
 	}).then(tabarray => {
-		callback(disabled_tabs.indexOf(tabarray[0].id) != -1);
+		callback(overwritten_tabs[tabarray[0].id]);
 	});
 }
 
@@ -47,11 +48,11 @@ function handleMessage(request, sender, sendResponse) {
 
 	if (request) {
 
-	browser.tabs.query({
-		currentWindow: true,
-		active: true
-		}
-	).then(tabarray => { tabClicked(tabarray[0], sendResponse); });
+		browser.tabs.query({
+			currentWindow: true,
+			active: true
+		})
+			.then(tabarray => tabClicked(tabarray[0], sendResponse););
 	} else {
 		getTabStatus(sendResponse);
 	}
