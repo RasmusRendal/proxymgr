@@ -1,13 +1,15 @@
 function defaultProxy() {
-	return {"Default Proxy":
+	return [
 		{
 			'type': 'direct',
+			'name': 'Direct Internet',
 			'host': '',
 			'port': '',
 			'username': '',
 			'password': '',
 			'proxyDNS': true
-		}};
+		}
+		];
 }
 
 function loadCallback(loaded, callback) {

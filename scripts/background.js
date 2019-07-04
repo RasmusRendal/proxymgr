@@ -2,6 +2,10 @@ var overwritten_tabs = {};
 
 var proxies = {};
 
+var rules = {
+	"rend.al": "Direct Internet"
+};
+
 loadProxiesAndPatterns(loadedProxies => {
 	proxies = loadedProxies;
 });
@@ -10,14 +14,12 @@ browser.proxy.onRequest.addListener(
 	function(details) {
 		if (details.tabId in overwritten_tabs) {
 			console.log("nice");
+			console.log(overwritten_tabs);
+			console.log(proxies[overwritten_tabs[details.tabId]]);
 			return proxies[overwritten_tabs[details.tabId]];
 		}
 
-		retVal = []
-		for (let proxy in proxies) {
-			retVal.push(proxies[proxy]);
-		}
-		return retVal;
+		return proxies;
 	},
 	{
 		'urls': ['<all_urls>']

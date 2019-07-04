@@ -23,10 +23,11 @@ document.addEventListener("click", e => {
 function loadButtons(proxies) {
 	html = "";
 	for (let proxy in proxies) {
+		console.log(proxy);
 		let p = proxies[proxy];
 		html += "<button id=\"enableProxy_" +
 			proxy + "\">" +
-			proxy + "</button>";
+			p.name + "</button>";
 	}
 	document.getElementById("proxylist").innerHTML = html;
 }

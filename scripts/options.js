@@ -1,6 +1,6 @@
-function addProxy(name, proxy) {
-	html = "<form class=\"proxiesform\">";
-	html += "<label for=\"name\">Name:</label>" + "<input type=\"text\" name=\"name\" value=\"" + name + "\"></input>";
+function addProxy(id, proxy) {
+	html = "<form class=\"proxiesform\" id=\"" + id + "\">";
+	html += "<label for=\"name\">Name:</label>" + "<input type=\"text\" name=\"name\" value=\"" + proxy.name + "\"></input>";
 	html += "<label for=\"type\">Proxy Type:</label>" + "<select name=\"type\" selected=\"" + proxy.type + "\">" +
 		"<option value=\"direct\"" + ((proxy.type == "direct") ? " selected" : "") + ">Direct</option>" +
 		"<option value=\"http\"" + ((proxy.type == "http") ? " selected" : "") + ">HTTP</option>" +
@@ -19,14 +19,14 @@ function addProxy(name, proxy) {
 }
 
 function proxiesLoaded(v) {
-	for (let k in Object.keys(v)) {
-		let name = Object.keys(v)[k];
-		addProxy(name, v[name]);
+	document.getElementById("proxiesList").innerHTML = "";
+	for (let i=0; i<v.length; i++) {
+		addProxy(i, v[i]);
 	}
 }
 
 function addDefaultProxy() {
-	addProxy("Default Proxy", defaultProxy()['Default Proxy']);
+	addProxy("0", defaultProxy()[0]);
 }
 
 function loadPatterns() {
@@ -42,11 +42,11 @@ function loadProxies() {
 
 function applyProxySettings() {
 	proxiesDiv = document.getElementById("proxiesList");
-	proxies = {};
+	proxies = [];
 	for (let i=0; i < proxiesDiv.children.length; i++) {
 		child = proxiesDiv.children[i];
-		name = child[0].value;
 		proxy = {
+			'name': child[0].value,
 			'type': child[1].value,
 			'host': child[2].value,
 			'port': child[3].value,
@@ -54,7 +54,7 @@ function applyProxySettings() {
 			'password': child[5].value,
 			'proxyDNS': (child[6].value == 'true')
 		}
-		proxies[name] = proxy
+		proxies.push(proxy);
 	}
 	browser.storage.sync.set({"proxies": proxies});
 }
