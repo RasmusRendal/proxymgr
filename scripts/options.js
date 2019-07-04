@@ -55,7 +55,7 @@ function loadPatterns() {
 function loadProxies() {
 	document.getElementById("patternsdiv").style.display = "none";
 	document.getElementById("proxiesdiv").style.display = "inherit";
-	loadProxiesAndPatterns(proxiesLoaded);
+	loadProxies(proxiesLoaded);
 }
 
 function applyProxySettings() {

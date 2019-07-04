@@ -3,10 +3,35 @@
 		<meta charset="UTF-8">
 		<script src="scripts/common.js"></script>
 		<script src="scripts/popup.js"></script>
+		<style>
+.column {
+	display: table-cell;
+}
+.container {
+	display: table-row;
+}
+		</style>
 	</head>
 	<body>
-		<p id="url"></p>
-		<div id="proxylist">
+		<table>
+			<thead>
+				<tr>
+					<th>Permament Rules</th>
+					<th>Domains</th>
+					<th>Temporary Rules</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+			</tbody>
+		</table>
+		<div class="container">
+			<div id="permarule" class="column">
+			</div>
+			<div id="domains" class="column">
+				<p id="url"></p>
+			</div>
+			<div id ="temprules">
+			</div>
 		</div>
 		<button id="settings">Settings</button>
 	</body>

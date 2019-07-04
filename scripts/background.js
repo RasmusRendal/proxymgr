@@ -20,10 +20,7 @@ var overwritten_tabs = {};
 
 var proxies = {};
 
-var rules = {
-	"*.rend.al": 1,
-	"rend.al": 1
-};
+var rules = {};
 
 var colors = [
 	"#0048BA",
@@ -36,9 +33,12 @@ var colors = [
 var latestProxy = "";
 
 function reloadSettings() {
-	loadProxiesAndPatterns(loadedProxies => {
+	loadProxies(loadedProxies => {
 		proxies = loadedProxies;
 	});
+	loadRules(loadedRules => {
+		rules = loadedRules;
+	})
 }
 reloadSettings();
 
@@ -84,7 +84,11 @@ browser.proxy.onRequest.addListener(
 
 function tabClicked(tabInfo, toSet, sendResponse) {
 	let tabID = tabInfo.id;
-	overwritten_tabs[tabID] = toSet;
+	if (toSet != "null") {
+		overwritten_tabs[tabID] = toSet;
+	} else {
+		delete overwritten_tabs[tabID];
+	}
 	getTabStatus(sendResponse);
 }
 
@@ -97,7 +101,8 @@ function getTabStatus(callback) {
 		callback({
 			'overwritten_status': overwritten_tabs[tab.id],
 			'url': getBaseUrl(tab.url),
-			'latestProxy': latestProxy
+			'latestProxy': latestProxy,
+			'subdomains': getSubdomains(tab.url)
 		});
 	});
 }

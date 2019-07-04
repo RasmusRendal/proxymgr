@@ -16,41 +16,99 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-function infoReceived(info) {
-	document.getElementById("url").innerHTML = info.url;
+var buttonHTML = "";
+var latestInfo = {};
+var rules = {};
 
-	let proxylist = document.getElementById("proxylist");
-	for (let i=0; i<proxylist.children.length; i++) {
-		proxylist.children[i].style.color = "black";
+function applyRules() {
+	for (rule in rules) {
+		let index = latestInfo.subdomains.indexOf(rule);
+		if (index != -1) {
+			document.getElementById("select_perm_" + index).value = rules[rule];
+		}
 	}
-	if (typeof(info.overwritten_status) != 'undefined') {
-		document.getElementById("enableProxy_" + info.overwritten_status).style.color = "green";
+}
+
+function updateDisplay() {
+	if (typeof(latestInfo.subdomains) == 'undefined')
+		return;
+
+	document.getElementById("tbody").innerHTML = '';
+	for (let i=0; i<latestInfo.subdomains.length; i++) {
+		let domain = latestInfo.subdomains[i];
+		let html = "<tr>";
+		html += "<td>" + buttonHTML.replace("IDTEMPLATE", "select_perm_" + i) + "</td>";
+		html += "<td>" + domain + "</td>";
+		html += "<td>" + buttonHTML.replace("IDTEMPLATE", "select_temp_" + i) + "</td>";
+		html += "</tr>";
+
+		document.getElementById("tbody").innerHTML += html;
+
 	}
+	applyRules();
+}
+
+function reloadRules() {
+	loadRules(newRules => {
+		rules = newRules;
+		updateDisplay;
+	});
+}
+
+function infoReceived(info) {
+	latestInfo = info;
+	updateDisplay();
+}
+
+function updateTabProxy() {
+	let v = document.getElementById("proxylist").value;
+	browser.runtime.sendMessage({"instruction": "enable", "toEnable": v}).then(infoReceived);
+
 }
 
 document.addEventListener("click", e => {
 	if (e.target.id == "settings"){
 		browser.runtime.openOptionsPage();
 	}
+});
 
-	if (e.target.id.substring(0, 12) === "enableProxy_") {
-		let toEnable = e.target.id.substring(12);
-		browser.runtime.sendMessage({"instruction": "enable", "toEnable": toEnable}).then(infoReceived);
+document.addEventListener("change", e => {
+	let name = e.target.id.split("_");
+	let perm = name[1] == "perm";
+	let id = name[2];
+	let value = e.target.value;
+	if (perm) {
+		rule = latestInfo.subdomains[Number(id)];
+		if (value != 'null') {
+			rules[rule] = value;
+		} else {
+			delete rules[rule];
+		}
+		browser.storage.sync.set({"rules": rules});
 	}
 });
 
 function loadButtons(proxies) {
-	html = "";
+	html = "<select id=\"IDTEMPLATE\">"
+	html += "<option value=\"null\">Default</option>";
 	for (let proxy in proxies) {
 		let p = proxies[proxy];
-		html += "<button id=\"enableProxy_" +
+		html += "<option value=\"" +
 			proxy + "\">" +
-			p.name + "</button>";
+			p.name + "</option>";
 	}
-	document.getElementById("proxylist").innerHTML = html;
+	html += "</select>"
+	buttonHTML = html;
+	updateDisplay();
 }
 
 window.onload = function() {
-	loadProxiesAndPatterns(loadButtons);
+	loadProxies(loadButtons);
 	browser.runtime.sendMessage({"instruction": "getinfo"}).then(infoReceived);
+	//document.getElementById("proxylist").addEventListener("change", updateTabProxy);
 }
+
+browser.storage.onChanged.addListener((changes, areaName) => {
+	reloadRules();
+});
+reloadRules();
