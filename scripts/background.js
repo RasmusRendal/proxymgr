@@ -1,6 +1,6 @@
 var overwritten_tabs = {};
 
-var proxies = [];
+var proxies = {};
 
 loadProxiesAndPatterns(loadedProxies => {
 	proxies = loadedProxies;
@@ -8,10 +8,14 @@ loadProxiesAndPatterns(loadedProxies => {
 
 browser.proxy.onRequest.addListener(
 	function(details) {
+		if (details.tabId in overwritten_tabs) {
+			console.log("nice");
+			return proxies[overwritten_tabs[details.tabId]];
+		}
+
 		retVal = []
 		for (let proxy in proxies) {
-			let p = proxies[proxy];
-			retVal.push(p.proxyObj);
+			retVal.push(proxies[proxy]);
 		}
 		return retVal;
 	},
@@ -20,15 +24,13 @@ browser.proxy.onRequest.addListener(
 	}
 );
 
-function tabClicked(tabInfo, sendResponse) {
+function tabClicked(tabInfo, toSet, sendResponse) {
 	let tabID = tabInfo.id;
-	if (disabled_tabs.indexOf(tabID) == -1) {
-		disabled_tabs.push(tabID);
-		sendResponse(true);
-	} else {
-		disabled_tabs.splice(disabled_tabs.indexOf(tabID), 1);
-		sendResponse(false);
-	}
+	overwritten_tabs[tabID] = toSet;
+	sendResponse({
+		'name': toSet,
+		'enabled': true
+	});
 }
 
 function getTabStatus(callback) {
@@ -40,24 +42,14 @@ function getTabStatus(callback) {
 	});
 }
 
-function onError(error) {
-	console.log(`Error: ${error}`);
-}
-
 function handleMessage(request, sender, sendResponse) {
+	browser.tabs.query({
+		currentWindow: true,
+		active: true
+	})
+	.then(tabarray => tabClicked(tabarray[0], request, sendResponse));
 
-	if (request) {
-
-		browser.tabs.query({
-			currentWindow: true,
-			active: true
-		})
-			.then(tabarray => tabClicked(tabarray[0], sendResponse););
-	} else {
-		getTabStatus(sendResponse);
-	}
 	return true;
-
 }
 
 browser.runtime.onMessage.addListener(handleMessage);

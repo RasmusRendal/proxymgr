@@ -1,5 +1,5 @@
 function defaultProxy() {
-	return {"name": "Default proxy (none)", "proxyObj":
+	return {"Default Proxy":
 		{
 			'type': 'direct',
 			'host': '',
@@ -12,7 +12,7 @@ function defaultProxy() {
 
 function loadCallback(loaded, callback) {
 	if (Object.keys(loaded).length === 0) {
-		callback([defaultProxy()]);
+		callback(defaultProxy());
 	} else {
 		callback(loaded.proxies);
 	}

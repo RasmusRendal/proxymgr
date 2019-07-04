@@ -1,5 +1,4 @@
 function addProxy(name, proxy) {
-	console.log(proxy);
 	html = "<form class=\"proxiesform\">";
 	html += "<label for=\"name\">Name:</label>" + "<input type=\"text\" name=\"name\" value=\"" + name + "\"></input>";
 	html += "<label for=\"type\">Proxy Type:</label>" + "<select name=\"type\" selected=\"" + proxy.type + "\">" +
@@ -20,15 +19,14 @@ function addProxy(name, proxy) {
 }
 
 function proxiesLoaded(v) {
-	for (let p in v) {
-		let name = v[p].name;
-		let proxy = v[p].proxyObj;
-		addProxy(name, proxy);
+	for (let k in Object.keys(v)) {
+		let name = Object.keys(v)[k];
+		addProxy(name, v[name]);
 	}
 }
 
 function addDefaultProxy() {
-	addProxy("New Proxy", defaultProxy().proxyObj);
+	addProxy("Default Proxy", defaultProxy()['Default Proxy']);
 }
 
 function loadPatterns() {
@@ -44,21 +42,19 @@ function loadProxies() {
 
 function applyProxySettings() {
 	proxiesDiv = document.getElementById("proxiesList");
-	proxies = [];
+	proxies = {};
 	for (let i=0; i < proxiesDiv.children.length; i++) {
 		child = proxiesDiv.children[i];
+		name = child[0].value;
 		proxy = {
-			'name': child[0].value,
-			'proxyObj': {
-				'type': child[1].value,
-				'host': child[2].value,
-				'port': child[3].value,
-				'username': child[4].value,
-				'password': child[5].value,
-				'proxyDNS': (child[6].value == 'true')
-			}
+			'type': child[1].value,
+			'host': child[2].value,
+			'port': child[3].value,
+			'username': child[4].value,
+			'password': child[5].value,
+			'proxyDNS': (child[6].value == 'true')
 		}
-		proxies.push(proxy);
+		proxies[name] = proxy
 	}
 	browser.storage.sync.set({"proxies": proxies});
 }
