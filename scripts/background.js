@@ -21,7 +21,7 @@ var overwritten_tabs = {};
 var proxies = {};
 
 var rules = {
-	"cloud.rend.al": 1,
+	"*.rend.al": 1,
 	"rend.al": 1
 };
 
@@ -42,37 +42,40 @@ function reloadSettings() {
 }
 reloadSettings();
 
-function loadProxy(id) {
+function loadProxy(url, id, tabId) {
 	name = proxies[id].name;
-	browser.tabs.query({
-		currentWindow: true,
-		active: true
-	}).then(tabarray => {
-		let tab = tabarray[0];
-		browser.browserAction.setBadgeText({text: name, tabId: tab.id});
-		browser.browserAction.setBadgeBackgroundColor({color: colors[id], tabId: tab.id});
-	});
+	console.log("Loaded " + url + " on tab " + tabId + " with " + name);
+	browser.browserAction.setBadgeText({text: name, tabId: tabId});
+	browser.browserAction.setBadgeBackgroundColor({color: colors[id], tabId: tabId});
+	return proxies[id];
 }
 
+function getRuleMatch(url) {
+	let baseUrl = getBaseUrl(url);
+	for (let rule in rules) {
+		if (rule.substring(0, 1) === '*') {
+			let matchPart = baseUrl.substring(rule.length-3);
+			if (rule.substring(2) === matchPart)
+				return rules[rule];
+		} else {
+			if (baseUrl === rule)
+				return rules[rule];
+		}
+	}
+}
 
 browser.proxy.onRequest.addListener(
 	function(details) {
 		if (details.tabId in overwritten_tabs) {
-			let toReturn = proxies[overwritten_tabs[details.tabId]];
-			loadProxy(overwritten_tabs[details.tabId]);
-			return toReturn;
+			return loadProxy(details.url, overwritten_tabs[details.tabId], details.tabId);
 		}
 
-		let baseUrl = getBaseUrl(details.url);
-		if (baseUrl in rules) {
-			let toReturn = proxies[rules[baseUrl]];
-			loadProxy(rules[baseUrl]);
-			return toReturn;
+		let ruleRes = getRuleMatch(details.url);
+		if (ruleRes) {
+			return loadProxy(details.url, ruleRes, details.tabId);
 		}
 
-		loadProxy(0);
-
-		return proxies;
+		return loadProxy(details.url, 0, details.tabId);
 	},
 	{
 		'urls': ['<all_urls>']
