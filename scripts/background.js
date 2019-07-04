@@ -7,6 +7,14 @@ var rules = {
 	"rend.al": 1
 };
 
+var colors = [
+	"#0048BA",
+	"#B0BF1A",
+	"#D3212D",
+	"#A4C639",
+	"#2E5894"
+]
+
 var latestProxy = "";
 
 function reloadSettings() {
@@ -16,9 +24,16 @@ function reloadSettings() {
 }
 reloadSettings();
 
-function loadProxy(name) {
-	latestProxy = name;
-	browser.browserAction.setBadgeText({text: name});
+function loadProxy(id) {
+	name = proxies[id].name;
+	browser.tabs.query({
+		currentWindow: true,
+		active: true
+	}).then(tabarray => {
+		let tab = tabarray[0];
+		browser.browserAction.setBadgeText({text: name, tabId: tab.id});
+		browser.browserAction.setBadgeBackgroundColor({color: colors[id], tabId: tab.id});
+	});
 }
 
 
@@ -26,18 +41,18 @@ browser.proxy.onRequest.addListener(
 	function(details) {
 		if (details.tabId in overwritten_tabs) {
 			let toReturn = proxies[overwritten_tabs[details.tabId]];
-			loadProxy(toReturn.name);
+			loadProxy(overwritten_tabs[details.tabId]);
 			return toReturn;
 		}
 
 		let baseUrl = getBaseUrl(details.url);
 		if (baseUrl in rules) {
 			let toReturn = proxies[rules[baseUrl]];
-			loadProxy(toReturn.name);
+			loadProxy(rules[baseUrl]);
 			return toReturn;
 		}
 
-		loadProxy(proxies[0].name);
+		loadProxy(0);
 
 		return proxies;
 	},

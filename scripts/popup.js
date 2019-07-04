@@ -1,8 +1,6 @@
 function infoReceived(info) {
 	document.getElementById("url").innerHTML = info.url;
 
-	browser.browserAction.setBadgeText({text: info.latestProxy});
-
 	let proxylist = document.getElementById("proxylist");
 	for (let i=0; i<proxylist.children.length; i++) {
 		proxylist.children[i].style.color = "black";
