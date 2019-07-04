@@ -38,7 +38,8 @@ function applyRules() {
 
 function updateDisplay() {
 
-	document.getElementById("perTab").outerHTML = buttonHTML.replace("IDTEMPLATE", "perTab");
+	if (buttonHTML != "")
+		document.getElementById("perTab").outerHTML = buttonHTML.replace("IDTEMPLATE", "perTab");
 
 	if (typeof(latestInfo.subdomains) == 'undefined')
 		return;
@@ -60,7 +61,7 @@ function updateDisplay() {
 function reloadRules() {
 	loadRules(newRules => {
 		rules = newRules;
-		updateDisplay;
+		updateDisplay();
 	});
 }
 
@@ -89,13 +90,10 @@ document.addEventListener("change", e => {
 		let value = e.target.value;
 		if (perm) {
 			rule = latestInfo.subdomains[Number(id)];
-			if (value != 'null') {
-				rules[rule] = value;
-			} else {
-				delete rules[rule];
-			}
-			browser.storage.sync.set({"rules": rules});
-
+			setRule(rule, value, newRules => {
+				rules = newRules;
+				updateDisplay();
+			});
 		}
 	} else if (name[0] === "perTab") {
 		console.log("temp");
@@ -103,27 +101,24 @@ document.addEventListener("change", e => {
 	}
 });
 
-function loadButtons(proxies) {
-	html = "<select id=\"IDTEMPLATE\">"
-	html += "<option value=\"null\">Default</option>";
-	for (let proxy in proxies) {
-		let p = proxies[proxy];
-		html += "<option value=\"" +
-			proxy + "\">" +
-			p.name + "</option>";
-	}
-	html += "</select>"
-	buttonHTML = html;
+function buttonGenerated(button) {
+	buttonHTML = button;
 	updateDisplay();
 }
 
 window.onload = function() {
-	loadProxies(loadButtons);
+	generateProxyDropdown(buttonGenerated);
 	browser.runtime.sendMessage({"instruction": "getinfo"}).then(infoReceived);
 }
 
 browser.storage.onChanged.addListener((changes, areaName) => {
-	loadProxies(loadButtons);
-	reloadRules();
+	console.log(changes);
+	if ("rules" in changes) {
+		rules = changes.rules.newValue;
+	}
+	if ("proxies" in changes) {
+		buttonHTML = generateDropdownFromProxies(changes.proxies.newValue);
+	}
+	updateDisplay();
 });
 reloadRules();

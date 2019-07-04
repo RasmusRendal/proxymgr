@@ -77,3 +77,32 @@ function getSubdomains(url) {
 	}
 	return ret;
 }
+
+function generateDropdownFromProxies(proxies) {
+	html = "<select id=\"IDTEMPLATE\">"
+	html += "<option value=\"null\">Default</option>";
+	for (let proxy in proxies) {
+		let p = proxies[proxy];
+		html += "<option value=\"" +
+			proxy + "\">" +
+			p.name + "</option>";
+	}
+	html += "</select>"
+	return html;
+}
+
+function generateProxyDropdown(callback) {
+	loadProxies(proxies => callback(generateDropdownFromProxies(proxies)));
+}
+
+function setRule(rule, value, callback) {
+	loadRules(rules => {
+		if (value != 'null') {
+			rules[rule] = value;
+		} else {
+			delete rules[rule];
+		}
+		browser.storage.sync.set({"rules": rules});
+		callback(rules);
+	})
+}

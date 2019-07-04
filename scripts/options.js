@@ -43,6 +43,36 @@ function proxiesLoaded(v) {
 	}
 }
 
+function applyRules(rules) {
+	for (rule in rules) {
+		document.getElementById(rule).value = rules[rule];
+	}
+}
+
+function rulesLoaded(rules) {
+	document.getElementById("tbody").innerHTML = "";
+	generateProxyDropdown(button => {
+		for (rule in rules) {
+			let html = "<tr id=\"TR_" + rule + "\">";
+			html += "<td>" + rule + "</td>";
+			html += "<td>" + button.replace("IDTEMPLATE", rule) + "</td>";
+			html += "</tr>";
+			document.getElementById("tbody").innerHTML += html;
+		}
+		applyRules(rules);
+	});
+}
+
+document.addEventListener("change", e => {
+	let name = e.target.id;
+	let value = e.target.value
+	setRule(name, value, rules => {
+		if (!(name in rules)) {
+			document.getElementById("TR_" + name).remove();
+		}
+	});
+});
+
 function addDefaultProxy() {
 	addProxy("0", defaultProxy()[0]);
 }
@@ -50,6 +80,7 @@ function addDefaultProxy() {
 function displayPatterns() {
 	document.getElementById("patternsdiv").style.display = "inherit";
 	document.getElementById("proxiesdiv").style.display = "none";
+	loadRules(rulesLoaded);
 }
 
 function displayProxies() {
@@ -105,3 +136,9 @@ document.addEventListener("click", e => {
 window.onload = function() {
 	displayProxies();
 }
+
+browser.storage.onChanged.addListener((changes, areaName) => {
+	if ("rules" in changes) {
+		rulesLoaded(changes.rules.newValue);
+	}
+});
