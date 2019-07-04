@@ -19,7 +19,7 @@
 function addProxy(id, proxy) {
 	html = "<form class=\"proxiesform\" id=\"" + id + "\">";
 	html += "<label for=\"name\">Name:</label>" + "<input type=\"text\" name=\"name\" value=\"" + proxy.name + "\"></input>";
-	html += "<label for=\"type\">Proxy Type:</label>" + "<select name=\"type\" selected=\"" + proxy.type + "\">" +
+	html += "<br><label for=\"type\">Proxy Type:</label>" + "<select name=\"type\" selected=\"" + proxy.type + "\">" +
 		"<option value=\"direct\"" + ((proxy.type == "direct") ? " selected" : "") + ">Direct</option>" +
 		"<option value=\"http\"" + ((proxy.type == "http") ? " selected" : "") + ">HTTP</option>" +
 		"<option value=\"https\"" + ((proxy.type == "https") ? " selected" : "") + ">HTTPS</option>" +
@@ -80,12 +80,20 @@ function addDefaultProxy() {
 function displayPatterns() {
 	document.getElementById("patternsdiv").style.display = "inherit";
 	document.getElementById("proxiesdiv").style.display = "none";
+	document.getElementById("patterns").classList.add('active');
+	//document.getElementById("patterns").classList.remove('inactive');
+	document.getElementById("proxies").classList.remove('active');
+	//document.getElementById("proxies").classList.add('inactive');
 	loadRules(rulesLoaded);
 }
 
 function displayProxies() {
 	document.getElementById("patternsdiv").style.display = "none";
 	document.getElementById("proxiesdiv").style.display = "inherit";
+	document.getElementById("patterns").classList.remove('active');
+	//document.getElementById("patterns").classList.add('inactive');
+	document.getElementById("proxies").classList.add('active');
+	//document.getElementById("proxies").classList.remove('inactive');
 	loadProxies(proxiesLoaded);
 }
 
