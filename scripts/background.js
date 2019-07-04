@@ -45,8 +45,13 @@ reloadSettings();
 function loadProxy(url, id, tabId) {
 	name = proxies[id].name;
 	console.log("Loaded " + url + " on tab " + tabId + " with " + name);
-	browser.browserAction.setBadgeText({text: name, tabId: tabId});
-	browser.browserAction.setBadgeBackgroundColor({color: colors[id], tabId: tabId});
+	if (tabId != -1) {
+		browser.browserAction.setBadgeText({text: name, tabId: tabId});
+		browser.browserAction.setBadgeBackgroundColor({color: colors[id], tabId: tabId});
+	} else {
+		browser.browserAction.setBadgeText({text: name});
+		browser.browserAction.setBadgeBackgroundColor({color: colors[id]});
+	}
 	return proxies[id];
 }
 
@@ -108,7 +113,7 @@ function getTabStatus(callback) {
 }
 
 function handleMessage(request, sender, sendResponse) {
-	if (request.instruction == "enable") {
+	if (request.instruction == "setTabOption") {
 		browser.tabs.query({
 			currentWindow: true,
 			active: true

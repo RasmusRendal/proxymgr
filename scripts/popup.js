@@ -21,15 +21,25 @@ var latestInfo = {};
 var rules = {};
 
 function applyRules() {
+	if (typeof(latestInfo.overwritten_status) != 'undefined') {
+		document.getElementById("perTab").value = latestInfo.overwritten_status;
+	} else {
+		document.getElementById("perTab").value = "null";
+	}
+
 	for (rule in rules) {
 		let index = latestInfo.subdomains.indexOf(rule);
 		if (index != -1) {
 			document.getElementById("select_perm_" + index).value = rules[rule];
 		}
 	}
+
 }
 
 function updateDisplay() {
+
+	document.getElementById("perTab").outerHTML = buttonHTML.replace("IDTEMPLATE", "perTab");
+
 	if (typeof(latestInfo.subdomains) == 'undefined')
 		return;
 
@@ -37,9 +47,8 @@ function updateDisplay() {
 	for (let i=0; i<latestInfo.subdomains.length; i++) {
 		let domain = latestInfo.subdomains[i];
 		let html = "<tr>";
-		html += "<td>" + buttonHTML.replace("IDTEMPLATE", "select_perm_" + i) + "</td>";
 		html += "<td>" + domain + "</td>";
-		html += "<td>" + buttonHTML.replace("IDTEMPLATE", "select_temp_" + i) + "</td>";
+		html += "<td>" + buttonHTML.replace("IDTEMPLATE", "select_perm_" + i) + "</td>";
 		html += "</tr>";
 
 		document.getElementById("tbody").innerHTML += html;
@@ -74,17 +83,24 @@ document.addEventListener("click", e => {
 
 document.addEventListener("change", e => {
 	let name = e.target.id.split("_");
-	let perm = name[1] == "perm";
-	let id = name[2];
-	let value = e.target.value;
-	if (perm) {
-		rule = latestInfo.subdomains[Number(id)];
-		if (value != 'null') {
-			rules[rule] = value;
-		} else {
-			delete rules[rule];
+	console.log(name);
+	if (name.length > 1) {
+		let perm = name[1] == "perm";
+		let id = name[2];
+		let value = e.target.value;
+		if (perm) {
+			rule = latestInfo.subdomains[Number(id)];
+			if (value != 'null') {
+				rules[rule] = value;
+			} else {
+				delete rules[rule];
+			}
+			browser.storage.sync.set({"rules": rules});
+
 		}
-		browser.storage.sync.set({"rules": rules});
+	} else if (name[0] === "perTab") {
+		console.log("temp");
+		browser.runtime.sendMessage({"instruction": "setTabOption", "toEnable": e.target.value}).then(infoReceived);
 	}
 });
 
@@ -105,7 +121,6 @@ function loadButtons(proxies) {
 window.onload = function() {
 	loadProxies(loadButtons);
 	browser.runtime.sendMessage({"instruction": "getinfo"}).then(infoReceived);
-	//document.getElementById("proxylist").addEventListener("change", updateTabProxy);
 }
 
 browser.storage.onChanged.addListener((changes, areaName) => {
