@@ -27,11 +27,11 @@
 			"96": "icons/icon96.png"
 		},
 		"default_title": "Proxy manager",
-		"default_popup": "popup.html"
+		"default_popup": "pages/popup.html"
 	},
 
 	"options_ui": {
-		"page": "options.html",
+		"page": "pages/options.html",
 		"browser_style": true
 	},
 

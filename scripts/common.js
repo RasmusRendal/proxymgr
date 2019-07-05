@@ -31,7 +31,7 @@ function defaultProxy() {
 	];
 }
 
-function loadCallback(loaded, callback) {
+function loadProxiesCallback(loaded, callback) {
 	if (Object.keys(loaded).length === 0) {
 		callback(defaultProxy());
 	} else {
@@ -48,7 +48,7 @@ function loadRulesCallback(loaded, callback) {
 }
 
 function loadProxies(callback) {
-	browser.storage.sync.get("proxies", ret => loadCallback(ret, callback));
+	browser.storage.sync.get("proxies", ret => loadProxiesCallback(ret, callback));
 }
 
 function loadRules(callback) {
@@ -56,29 +56,29 @@ function loadRules(callback) {
 }
 
 function getBaseUrl(url) {
-	// I know this is not i18n complete at all. Sorry non-latin alphabet users
-	// And y'all better only be using http or https
 	urlregex = /^https?:\/\/([\w\d-\.]*)/;
 	let match = url.match(urlregex);
-	if (match.length > 1)
+	if (match != null && match.length >= 2)
 		return match[1];
 }
 
 function getSubdomains(url) {
 	let baseUrl = getBaseUrl(url);
-	let ret = []
+	if (typeof(baseUrl) === 'undefined')
+		return [];
+	let subdomains = []
 	let i = 0;
 	// DNS supports up to 127 subdomains
 	while (baseUrl.indexOf('.') != -1 && i < 128) {
-		ret.push('*.' + baseUrl);
-		ret.push(baseUrl);
+		subdomains.push('*.' + baseUrl);
+		subdomains.push(baseUrl);
 		baseUrl = baseUrl.substring(baseUrl.indexOf('.')+1);
 		i++;
 	}
-	return ret;
+	return subdomains;
 }
 
-function generateDropdownFromProxies(proxies) {
+function GeterateProxyDropdownFromProxies(proxies) {
 	html = "<select id=\"IDTEMPLATE\">"
 	html += "<option value=\"null\">Default</option>";
 	for (let proxy in proxies) {
@@ -92,7 +92,7 @@ function generateDropdownFromProxies(proxies) {
 }
 
 function generateProxyDropdown(callback) {
-	loadProxies(proxies => callback(generateDropdownFromProxies(proxies)));
+	loadProxies(proxies => callback(GeterateProxyDropdownFromProxies(proxies)));
 }
 
 function setRule(rule, value, callback) {

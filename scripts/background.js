@@ -30,8 +30,6 @@ var colors = [
 	"#2E5894"
 ]
 
-var latestProxy = "";
-
 function reloadSettings() {
 	loadProxies(loadedProxies => {
 		proxies = loadedProxies;
@@ -62,9 +60,8 @@ function getRuleMatch(url) {
 			let matchPart = baseUrl.substring(rule.length-3);
 			if (rule.substring(2) === matchPart)
 				return rules[rule];
-		} else {
-			if (baseUrl === rule)
-				return rules[rule];
+		} else if (baseUrl === rule) {
+			return rules[rule];
 		}
 	}
 }
@@ -75,9 +72,9 @@ browser.proxy.onRequest.addListener(
 			return loadProxy(details.url, overwritten_tabs[details.tabId], details.tabId);
 		}
 
-		let ruleRes = getRuleMatch(details.url);
-		if (ruleRes) {
-			return loadProxy(details.url, ruleRes, details.tabId);
+		let ruleMatch = getRuleMatch(details.url);
+		if (ruleMatch) {
+			return loadProxy(details.url, ruleMatch, details.tabId);
 		}
 
 		return loadProxy(details.url, 0, details.tabId);
@@ -106,7 +103,6 @@ function getTabStatus(callback) {
 		callback({
 			'overwritten_status': overwritten_tabs[tab.id],
 			'url': getBaseUrl(tab.url),
-			'latestProxy': latestProxy,
 			'subdomains': getSubdomains(tab.url)
 		});
 	});
@@ -117,8 +113,9 @@ function handleMessage(request, sender, sendResponse) {
 		browser.tabs.query({
 			currentWindow: true,
 			active: true
-		})
-			.then(tabarray => tabClicked(tabarray[0], request.toEnable, sendResponse));
+		}).then(
+			tabarray => tabClicked(tabarray[0], request.toEnable, sendResponse)
+		);
 		return true;
 	} else if (request.instruction == "getinfo") {
 		getTabStatus(sendResponse);
@@ -130,4 +127,4 @@ browser.runtime.onMessage.addListener(handleMessage);
 
 browser.storage.onChanged.addListener((changes, areaName) => {
 	reloadSettings();
-})
+});

@@ -16,46 +16,50 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var buttonHTML = "";
-var latestInfo = {};
+var proxySwitcherHTML = "";
+var tabStatus = {};
 var rules = {};
 
-function applyRules() {
-	if (typeof(latestInfo.overwritten_status) != 'undefined') {
-		document.getElementById("perTab").value = latestInfo.overwritten_status;
+function displayRules() {
+	if (typeof(tabStatus.overwritten_status) != 'undefined') {
+		document.getElementById("perTab").value = tabStatus.overwritten_status;
 	} else {
 		document.getElementById("perTab").value = "null";
 	}
 
 	for (rule in rules) {
-		let index = latestInfo.subdomains.indexOf(rule);
+		let index = tabStatus.subdomains.indexOf(rule);
 		if (index != -1) {
 			document.getElementById("select_perm_" + index).value = rules[rule];
 		}
 	}
-
 }
 
 function updateDisplay() {
+	if (proxySwitcherHTML != "")
+		document.getElementById("perTab").outerHTML = proxySwitcherHTML.replace("IDTEMPLATE", "perTab");
 
-	if (buttonHTML != "")
-		document.getElementById("perTab").outerHTML = buttonHTML.replace("IDTEMPLATE", "perTab");
-
-	if (typeof(latestInfo.subdomains) == 'undefined')
+	if (typeof(tabStatus.subdomains) == 'undefined')
 		return;
 
+	if (tabStatus.subdomains.length === 0) {
+		document.getElementById("table").style.display = "none";
+	} else {
+		document.getElementById("table").style.display = "inherit";
+	}
+
 	document.getElementById("tbody").innerHTML = '';
-	for (let i=0; i<latestInfo.subdomains.length; i++) {
-		let domain = latestInfo.subdomains[i];
+	for (let i=0; i<tabStatus.subdomains.length; i++) {
+		let domain = tabStatus.subdomains[i];
 		let html = "<tr>";
 		html += "<td>" + domain + "</td>";
-		html += "<td>" + buttonHTML.replace("IDTEMPLATE", "select_perm_" + i) + "</td>";
+		html += "<td>" + proxySwitcherHTML.replace("IDTEMPLATE", "select_perm_" + i) + "</td>";
 		html += "</tr>";
 
 		document.getElementById("tbody").innerHTML += html;
 
 	}
-	applyRules();
+	displayRules();
 }
 
 function reloadRules() {
@@ -65,14 +69,14 @@ function reloadRules() {
 	});
 }
 
-function infoReceived(info) {
-	latestInfo = info;
+function tabStatusReceived(info) {
+	tabStatus = info;
 	updateDisplay();
 }
 
 function updateTabProxy() {
 	let v = document.getElementById("proxylist").value;
-	browser.runtime.sendMessage({"instruction": "enable", "toEnable": v}).then(infoReceived);
+	browser.runtime.sendMessage({"instruction": "enable", "toEnable": v}).then(tabStatusReceived);
 }
 
 document.addEventListener("click", e => {
@@ -89,7 +93,7 @@ document.addEventListener("change", e => {
 		let id = name[2];
 		let value = e.target.value;
 		if (perm) {
-			rule = latestInfo.subdomains[Number(id)];
+			rule = tabStatus.subdomains[Number(id)];
 			setRule(rule, value, newRules => {
 				rules = newRules;
 				updateDisplay();
@@ -97,18 +101,21 @@ document.addEventListener("change", e => {
 		}
 	} else if (name[0] === "perTab") {
 		console.log("temp");
-		browser.runtime.sendMessage({"instruction": "setTabOption", "toEnable": e.target.value}).then(infoReceived);
+		browser.runtime.sendMessage({
+			"instruction": "setTabOption",
+			"toEnable": e.target.value
+		}).then(tabStatusReceived);
 	}
 });
 
-function buttonGenerated(button) {
-	buttonHTML = button;
+function proxySwitcherGenerated(button) {
+	proxySwitcherHTML = button;
 	updateDisplay();
 }
 
 window.onload = function() {
-	generateProxyDropdown(buttonGenerated);
-	browser.runtime.sendMessage({"instruction": "getinfo"}).then(infoReceived);
+	generateProxyDropdown(proxySwitcherGenerated);
+	browser.runtime.sendMessage({"instruction": "getinfo"}).then(tabStatusReceived);
 }
 
 browser.storage.onChanged.addListener((changes, areaName) => {
@@ -117,7 +124,7 @@ browser.storage.onChanged.addListener((changes, areaName) => {
 		rules = changes.rules.newValue;
 	}
 	if ("proxies" in changes) {
-		buttonHTML = generateDropdownFromProxies(changes.proxies.newValue);
+		proxySwitcherHTML = generateDropdownFromProxies(changes.proxies.newValue);
 	}
 	updateDisplay();
 });

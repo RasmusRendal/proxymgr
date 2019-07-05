@@ -43,7 +43,7 @@ function proxiesLoaded(v) {
 	}
 }
 
-function applyRules(rules) {
+function setRuleValues(rules) {
 	for (rule in rules) {
 		document.getElementById(rule).value = rules[rule];
 	}
@@ -59,15 +59,15 @@ function rulesLoaded(rules) {
 			html += "</tr>";
 			document.getElementById("tbody").innerHTML += html;
 		}
-		applyRules(rules);
+		setRuleValues(rules);
 	});
 }
 
 document.addEventListener("change", e => {
 	let name = e.target.id;
 	let value = e.target.value
-	setRule(name, value, rules => {
-		if (!(name in rules)) {
+	setRule(name, value, newRules => {
+		if (!(name in newRules)) {
 			document.getElementById("TR_" + name).remove();
 		}
 	});
@@ -81,9 +81,7 @@ function displayPatterns() {
 	document.getElementById("patternsdiv").style.display = "inherit";
 	document.getElementById("proxiesdiv").style.display = "none";
 	document.getElementById("patterns").classList.add('active');
-	//document.getElementById("patterns").classList.remove('inactive');
 	document.getElementById("proxies").classList.remove('active');
-	//document.getElementById("proxies").classList.add('inactive');
 	loadRules(rulesLoaded);
 }
 
@@ -91,13 +89,11 @@ function displayProxies() {
 	document.getElementById("patternsdiv").style.display = "none";
 	document.getElementById("proxiesdiv").style.display = "inherit";
 	document.getElementById("patterns").classList.remove('active');
-	//document.getElementById("patterns").classList.add('inactive');
 	document.getElementById("proxies").classList.add('active');
-	//document.getElementById("proxies").classList.remove('inactive');
 	loadProxies(proxiesLoaded);
 }
 
-function applyProxySettings() {
+function saveProxySettings() {
 	proxiesDiv = document.getElementById("proxiesList");
 	proxies = [];
 	for (let i=0; i < proxiesDiv.children.length; i++) {
@@ -117,7 +113,7 @@ function applyProxySettings() {
 }
 
 function applySettings() {
-	applyProxySettings();
+	saveProxySettings();
 }
 
 document.addEventListener("click", e => {

@@ -1,8 +1,8 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<script src="scripts/common.js"></script>
-		<script src="scripts/popup.js"></script>
+		<script src="../scripts/common.js"></script>
+		<script src="../scripts/popup.js"></script>
 		<style>
 .column {
 	display: table-cell;
@@ -13,7 +13,7 @@
 		</style>
 	</head>
 	<body>
-		<table>
+		<table id="table">
 			<thead>
 				<tr>
 					<th>Domain</th>
@@ -32,6 +32,6 @@
 			<div id ="temprules">
 			</div>
 		</div>
-		<label for="perTab">Per tab setting: </label><select name="perTab" id="perTab"></select>
+		<label for="perTab" id="perTabLabel">Per tab setting: </label><select name="perTab" id="perTab"></select>
 		<button id="settings">Settings</button>
 	</body>
