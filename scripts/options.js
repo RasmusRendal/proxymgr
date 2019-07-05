@@ -16,6 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+var proxies = [];
+var rules = {};
+var states = {
+	PROXIES: 0,
+	RULES: 1
+};
+var curState = states.PROXIES;
+
 function addProxy(id, proxy) {
 	html = "<form class=\"proxiesform\" id=\"" + id + "\">";
 	html += "<label for=\"name\">Name:</label>" + "<input type=\"text\" name=\"name\" value=\"" + proxy.name + "\"></input>";
@@ -31,12 +39,13 @@ function addProxy(id, proxy) {
 	html += "<label for=\"username\">Username:</label>" + "<input type=\"text\" name=\"username\" value=\"" + proxy.username + "\"></input>";
 	html += "<label for=\"password\">Password:</label>" + "<input type=\"password\" name=\"password\" value=\"" + proxy.password + "\"></input>";
 	html += "<label for=\"proxyDNS\">Proxy DNS:</label><select name=\"proxyDNS\" value=\"" + proxy.proxyDNS + "\"><option value=\"true\">True</option><option value\"false\">False</option></select>";
-	html += "<button id=\"delete\" value=\"" + name + "\">Delete Proxy</button>";
+	html += "<button id=\"delete" + id + "\" value=\"" + name + "\">Delete Proxy</button>";
 	html += "</form>";
 	document.getElementById("proxiesList").innerHTML += html;
 }
 
 function proxiesLoaded(v) {
+	proxies = v;
 	document.getElementById("proxiesList").innerHTML = "";
 	for (let i=0; i<v.length; i++) {
 		addProxy(i, v[i]);
@@ -49,39 +58,47 @@ function setRuleValues(rules) {
 	}
 }
 
-function rulesLoaded(rules) {
+function rulesLoaded(newRules) {
+	rules = newRules;
 	document.getElementById("tbody").innerHTML = "";
 	generateProxyDropdown(button => {
-		for (rule in rules) {
+		for (rule in newRules) {
 			let html = "<tr id=\"TR_" + rule + "\">";
 			html += "<td>" + rule + "</td>";
 			html += "<td>" + button.replace("IDTEMPLATE", rule) + "</td>";
 			html += "</tr>";
 			document.getElementById("tbody").innerHTML += html;
 		}
-		setRuleValues(rules);
+		setRuleValues(newRules);
 	});
 }
 
 document.addEventListener("change", e => {
-	let name = e.target.id;
-	let value = e.target.value
-	setRule(name, value, newRules => {
-		if (!(name in newRules)) {
-			document.getElementById("TR_" + name).remove();
-		}
-	});
+	if (curState == states.RULES) {
+		let name = e.target.id;
+		let value = e.target.value
+		setRule(name, value, newRules => {
+			if (!(name in newRules)) {
+				document.getElementById("TR_" + name).remove();
+			}
+		});
+	} else if (curState == states.PROXIES) {
+		saveProxySettings();
+	}
 });
 
 function addDefaultProxy() {
-	addProxy("0", defaultProxy()[0]);
+	proxies.push(defaultProxy()[0]);
+	proxiesLoaded(proxies);
+	//addProxy("0", defaultProxy()[0]);
 }
 
-function displayPatterns() {
+function displayRules() {
 	document.getElementById("rulesdiv").style.display = "inherit";
 	document.getElementById("proxiesdiv").style.display = "none";
 	document.getElementById("rules").classList.add('active');
 	document.getElementById("proxies").classList.remove('active');
+	curState = states.RULES;
 	loadRules(rulesLoaded);
 }
 
@@ -90,6 +107,7 @@ function displayProxies() {
 	document.getElementById("proxiesdiv").style.display = "inherit";
 	document.getElementById("rules").classList.remove('active');
 	document.getElementById("proxies").classList.add('active');
+	curState = states.PROXIES;
 	loadProxies(proxiesLoaded);
 }
 
@@ -119,13 +137,10 @@ function applySettings() {
 document.addEventListener("click", e => {
 	switch (e.target.id) {
 		case "rules":
-			displayPatterns();
+			displayRules();
 			break;
 		case "proxies":
 			displayProxies();
-			break;
-		case "applySettings":
-			applySettings();
 			break;
 		case "addProxy":
 			addDefaultProxy();
@@ -133,7 +148,14 @@ document.addEventListener("click", e => {
 	}
 
 	if (e.target.id.substr(0, 6) == "delete") {
-		console.log(e.target.value);
+		let proxyId = e.target.id.substring(6);
+		proxies.splice(Number(proxyId), 1);
+		for (rule in rules) {
+			if (rules[rule] == proxyId)
+				setRule(rule, 'null');
+		}
+		browser.storage.sync.set({"proxies": proxies});
+		proxiesLoaded(proxies);
 	}
 });
 
@@ -143,6 +165,8 @@ window.onload = function() {
 
 browser.storage.onChanged.addListener((changes, areaName) => {
 	if ("rules" in changes) {
+		console.log("changerule");
+		console.log(curState);
 		rulesLoaded(changes.rules.newValue);
 	}
 });
