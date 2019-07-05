@@ -20,7 +20,8 @@ var proxies = [];
 var rules = {};
 var states = {
 	PROXIES: 0,
-	RULES: 1
+	RULES: 1,
+	MANUAL: 2
 };
 var curState = states.PROXIES;
 var localChange = false;
@@ -98,22 +99,36 @@ function addDefaultProxy() {
 	//addProxy("0", defaultProxy()[0]);
 }
 
-function displayRules() {
-	document.getElementById("rulesdiv").style.display = "inherit";
+function hideOthers() {
 	document.getElementById("proxiesdiv").style.display = "none";
-	document.getElementById("rules").classList.add('active');
+	document.getElementById("rulesdiv").style.display = "none";
+	document.getElementById("manualdiv").style.display = "none";
+	document.getElementById("rules").classList.remove('active');
 	document.getElementById("proxies").classList.remove('active');
+	document.getElementById("manual").classList.remove('active');
+}
+
+function displayRules() {
+	hideOthers();
+	document.getElementById("rulesdiv").style.display = "inherit";
+	document.getElementById("rules").classList.add('active');
 	curState = states.RULES;
 	loadRules(rulesLoaded);
 }
 
 function displayProxies() {
-	document.getElementById("rulesdiv").style.display = "none";
+	hideOthers();
 	document.getElementById("proxiesdiv").style.display = "inherit";
-	document.getElementById("rules").classList.remove('active');
 	document.getElementById("proxies").classList.add('active');
 	curState = states.PROXIES;
 	loadProxies(proxiesLoaded);
+}
+
+function displayManual() {
+	hideOthers();
+	document.getElementById("manualdiv").style.display = "inherit";
+	document.getElementById("manual").classList.add('active');
+	curState = states.MANUAL;
 }
 
 function saveProxySettings() {
@@ -146,6 +161,9 @@ document.addEventListener("click", e => {
 			break;
 		case "proxies":
 			displayProxies();
+			break;
+		case "manual":
+			displayManual();
 			break;
 		case "addProxy":
 			addDefaultProxy();
