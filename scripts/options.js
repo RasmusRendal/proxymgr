@@ -78,17 +78,17 @@ function addDefaultProxy() {
 }
 
 function displayPatterns() {
-	document.getElementById("patternsdiv").style.display = "inherit";
+	document.getElementById("rulesdiv").style.display = "inherit";
 	document.getElementById("proxiesdiv").style.display = "none";
-	document.getElementById("patterns").classList.add('active');
+	document.getElementById("rules").classList.add('active');
 	document.getElementById("proxies").classList.remove('active');
 	loadRules(rulesLoaded);
 }
 
 function displayProxies() {
-	document.getElementById("patternsdiv").style.display = "none";
+	document.getElementById("rulesdiv").style.display = "none";
 	document.getElementById("proxiesdiv").style.display = "inherit";
-	document.getElementById("patterns").classList.remove('active');
+	document.getElementById("rules").classList.remove('active');
 	document.getElementById("proxies").classList.add('active');
 	loadProxies(proxiesLoaded);
 }
@@ -118,7 +118,7 @@ function applySettings() {
 
 document.addEventListener("click", e => {
 	switch (e.target.id) {
-		case "patterns":
+		case "rules":
 			displayPatterns();
 			break;
 		case "proxies":
