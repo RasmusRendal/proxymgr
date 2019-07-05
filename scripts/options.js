@@ -23,6 +23,7 @@ var states = {
 	RULES: 1
 };
 var curState = states.PROXIES;
+var localChange = false;
 
 function addProxy(id, proxy) {
 	html = "<form class=\"proxiesform\" id=\"" + id + "\">";
@@ -55,7 +56,9 @@ function proxiesLoaded(v) {
 
 function setRuleValues(rules) {
 	for (rule in rules) {
-		document.getElementById(rule).value = rules[rule];
+		let e = document.getElementById(rule);
+		if (e)
+			e.value = rules[rule];
 	}
 }
 
@@ -74,10 +77,11 @@ function rulesLoaded(newRules) {
 	});
 }
 
-document.addEventListener("change", e => {
+document.addEventListener("input", e => {
 	if (curState == states.RULES) {
 		let name = e.target.id;
 		let value = e.target.value
+		localChange = true;
 		setRule(name, value, newRules => {
 			if (!(name in newRules)) {
 				document.getElementById("TR_" + name).remove();
@@ -166,8 +170,10 @@ window.onload = function() {
 
 browser.storage.onChanged.addListener((changes, areaName) => {
 	if ("rules" in changes) {
-		console.log("changerule");
-		console.log(curState);
-		rulesLoaded(changes.rules.newValue);
+		if (!localChange) {
+			rulesLoaded(changes.rules.newValue);
+		} else {
+			localChange = false;
+		}
 	}
 });
