@@ -42,7 +42,7 @@ function addProxy(id, proxy) {
 	html += "<div class=\"field\"><label for=\"password\">Password</label>" + "<input type=\"password\" name=\"password\" value=\"" + proxy.password + "\"></input></div>";
 	html += "<div class=\"field\"><label for=\"proxyDNS\">Proxy DNS</label><select class=\"browser-style\" name=\"proxyDNS\" value=\"" + proxy.proxyDNS + "\"><option value=\"true\">True</option><option value\"false\">False</option></select></div></div>";
 	if (id !== 0)
-		html += "<button id=\"delete" + id + "\" value=\"" + name + "\">Delete Proxy</button>";
+		html += "<button id=\"delete" + id + "\" class=\"browser-style\" value=\"" + name + "\">Delete Proxy</button>";
 	html += "</form>";
 	console.log(html);
 	document.getElementById("proxiesList").innerHTML += html;

@@ -27,7 +27,8 @@
 			"96": "icons/icon96.png"
 		},
 		"default_title": "Proxy manager",
-		"default_popup": "pages/popup.html"
+		"default_popup": "pages/popup.html",
+		"browser_style": true
 	},
 
 	"options_ui": {

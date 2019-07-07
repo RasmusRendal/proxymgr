@@ -52,7 +52,7 @@ function updateDisplay() {
 	for (let i=0; i<tabStatus.subdomains.length; i++) {
 		let domain = tabStatus.subdomains[i];
 		let html = "<tr>";
-		html += "<td>" + domain + "</td>";
+		html += "<td><p>" + domain + "</p></td>";
 		html += "<td>" + proxySwitcherHTML.replace("IDTEMPLATE", "select_perm_" + i) + "</td>";
 		html += "</tr>";
 

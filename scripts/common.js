@@ -79,7 +79,7 @@ function getSubdomains(url) {
 }
 
 function GeterateProxyDropdownFromProxies(proxies) {
-	html = "<select id=\"IDTEMPLATE\">"
+	html = "<select id=\"IDTEMPLATE\" class=\"browser-style\">"
 	html += "<option value=\"null\">Default</option>";
 	for (let proxy in proxies) {
 		let p = proxies[proxy];

@@ -148,26 +148,7 @@ label:active.active.tab{
 	text-shadow: 0 0 0 #000;
 }
 
-.add {
-	border-radius: 2px;
-	height: 32px;
-	width: 128px;
-	padding: 0px 8px;
-	background-color: var(--gray-90-a20);
-	color: var(--gray-90);
-	font-size: 13px;
-	text-align: center;
-	vertical-align: middle;
-	line-height: 32px;
+#addProxy > img {
+	vertical-align: top;
+	padding-right: 5px;
 }
-
-.add label {
-	display: inline-grid;
-	border: 1px solid Blue;
-}
-
-.add img {
-	display: inline-grid;
-	padding: 8px;
-}
-
