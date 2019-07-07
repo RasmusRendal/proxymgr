@@ -32,7 +32,8 @@ function defaultProxy() {
 }
 
 function loadProxiesCallback(loaded, callback) {
-	if (Object.keys(loaded).length === 0) {
+	console.log(loaded);
+	if (typeof(loaded) === 'undefined' || Object.keys(loaded).length < 1) {
 		callback(defaultProxy());
 	} else {
 		callback(loaded.proxies);

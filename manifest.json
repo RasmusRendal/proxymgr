@@ -1,16 +1,16 @@
 {
-  "manifest_version": 2,
-  "name": "Proxy Manager",
-  "version": "0.1",
+	"manifest_version": 2,
+	"name": "Proxy Manager",
+	"version": "1.0",
 
-  "description": "A browser extension for managing multiple proxies",
+	"description": "A browser extension for managing multiple proxies",
 
 	"background": {
 		"scripts": ["scripts/common.js", "scripts/background.js"]
 	},
 
 	"permissions": [
-  	"proxy",
+		"proxy",
 		"tabs",
 		"storage",
 		"<all_urls>"
@@ -37,9 +37,8 @@
 	},
 
 	"applications": {
-	  "gecko": {
-	    "id": "proxymanager@rend.al"
-	  }
+		"gecko": {
+			"id": "proxymanager@rend.al"
+		}
 	}
-
 }
