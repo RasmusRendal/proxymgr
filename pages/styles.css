@@ -153,6 +153,8 @@ label:active.active.tab{
 button.add > img {
 	vertical-align: top;
 	padding-right: 5px;
+	height: 1.25em;
+	width: auto;
 }
 
 button.add {
@@ -169,11 +171,15 @@ button.delete {
 	top: 0px;
 	right: 0px;
 	height: 32px;
-	width: auto;
+	width: 32px;
 	margin: 4px;
 	border-radius: 2px;
 	border: none;
 	background-color: var(--gray-90-a10);
+	background-image: url("resource://activity-stream/data/content/assets/glyph-delete-16.svg");
+	background-size: 16px 16px;
+	background-repeat: no-repeat;
+	background-position: center center;
 }
 
 button.delete > img {
@@ -318,5 +324,3 @@ td > select:-moz-focusring {
 	color: transparent;
 	text-shadow: 0 0 0 #000;
 }
-
-
