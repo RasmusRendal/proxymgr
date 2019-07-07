@@ -44,7 +44,6 @@ function addProxy(id, proxy) {
 	if (id !== 0)
 		html += "<button id=\"delete" + id + "\" class=\"delete\" title=\"Delete proxy\" value=\"" + name + "\"></button>";
 	html += "</form>";
-	console.log(html);
 	document.getElementById("proxiesList").innerHTML += html;
 }
 
