@@ -3,25 +3,28 @@
 		<meta charset="UTF-8">
 		<script src="../scripts/common.js"></script>
 		<script src="../scripts/popup.js"></script>
-		<style>
-body {
-	margin-right: 5px;
-	margin-left: 5px;
-}
-		</style>
+		<link rel="stylesheet" type="text/css" href="styles.css">
 	</head>
 	<body>
-		<div id="tablediv">
-		<table id="table" class="browser-style">
-			<thead>
-				<tr>
-					<th>Domain</th>
-					<th>Rule</th>
-				</tr>
-			</thead>
-			<tbody id="tbody">
-			</tbody>
-		</table>
+		<div class="popupdiv">
+			<div id="tablediv">
+				<table id="table" class="popup">
+					<thead>
+						<tr>
+							<th>Domain</th>
+							<th>Rule</th>
+						</tr>
+					</thead>
+					<tbody id="tbody">
+					</tbody>
+				</table>
+			</div>
+			<div class="pertabdiv">
+				<div class="field">
+					<label for="perTab" id="perTabLabel">Per tab setting</label>
+					<select name="perTab" id="perTab">
+					</select>
+				</div>
+			</div>
 		</div>
-		<label for="perTab" id="perTabLabel">Per tab setting: </label><select name="perTab" id="perTab"></select>
 	</body>
