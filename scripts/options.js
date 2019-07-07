@@ -28,22 +28,23 @@ var localChange = false;
 
 function addProxy(id, proxy) {
 	html = "<form class=\"proxiesform\" id=\"" + id + "\">";
-	html += "<label for=\"name\">Name:</label>" + "<input type=\"text\" name=\"name\" value=\"" + proxy.name + "\"></input>";
-	html += "<br><label for=\"type\">Proxy Type:</label>" + "<select name=\"type\" selected=\"" + proxy.type + "\">" +
+	html += "<div class=\"fields\"><div class=\"field\"><label for=\"name\">Name</label>" + "<input type=\"text\" name=\"name\" value=\"" + proxy.name + "\"></input></div>";
+	html += "<div class=\"field\"><label for=\"type\">Proxy type</label>" + "<select class=\"browser-style\" name=\"type\" selected=\"" + proxy.type + "\">" +
 		"<option value=\"direct\"" + ((proxy.type == "direct") ? " selected" : "") + ">Direct</option>" +
 		"<option value=\"http\"" + ((proxy.type == "http") ? " selected" : "") + ">HTTP</option>" +
 		"<option value=\"https\"" + ((proxy.type == "https") ? " selected" : "") + ">HTTPS</option>" +
 		"<option value=\"socks\"" + ((proxy.type == "socks") ? " selected" : "") + ">SOCKS v5</option>" +
 		"<option value=\"socks4\"" + ((proxy.type == "socks4") ? " selected" : "") + ">SOCKS v4</option>" +
-		"</select>";
-	html += "<label for=\"host\">Host:</label>" + "<input type=\"text\" name=\"host\" value=\"" + proxy.host + "\"></input>";
-	html += "<label for=\"port\">Port:</label>" + "<input type=\"number\" name=\"port\" value=\"" + proxy.port + "\"></input>";
-	html += "<label for=\"username\">Username:</label>" + "<input type=\"text\" name=\"username\" value=\"" + proxy.username + "\"></input>";
-	html += "<label for=\"password\">Password:</label>" + "<input type=\"password\" name=\"password\" value=\"" + proxy.password + "\"></input>";
-	html += "<label for=\"proxyDNS\">Proxy DNS:</label><select name=\"proxyDNS\" value=\"" + proxy.proxyDNS + "\"><option value=\"true\">True</option><option value\"false\">False</option></select>";
+		"</select></div></div>";
+	html += "<div class=\"fields\"><div class=\"field\"><label for=\"host\">Host:</label>" + "<input type=\"text\" name=\"host\" value=\"" + proxy.host + "\"></input></div>";
+	html += "<div class=\"field\"><label for=\"port\">Port</label>" + "<input type=\"number\" name=\"port\" value=\"" + proxy.port + "\"></input></div></div>";
+	html += "<div class=\"fields\"><div class=\"field\"><label for=\"username\">Username</label>" + "<input type=\"text\" name=\"username\" value=\"" + proxy.username + "\"></input></div>";
+	html += "<div class=\"field\"><label for=\"password\">Password</label>" + "<input type=\"password\" name=\"password\" value=\"" + proxy.password + "\"></input></div>";
+	html += "<div class=\"field\"><label for=\"proxyDNS\">Proxy DNS</label><select class=\"browser-style\" name=\"proxyDNS\" value=\"" + proxy.proxyDNS + "\"><option value=\"true\">True</option><option value\"false\">False</option></select></div></div>";
 	if (id !== 0)
 		html += "<button id=\"delete" + id + "\" value=\"" + name + "\">Delete Proxy</button>";
 	html += "</form>";
+	console.log(html);
 	document.getElementById("proxiesList").innerHTML += html;
 }
 
@@ -52,6 +53,8 @@ function proxiesLoaded(v) {
 	document.getElementById("proxiesList").innerHTML = "";
 	for (let i=0; i<v.length; i++) {
 		addProxy(i, v[i]);
+		/*if (i != v.length-1) {*/
+		document.getElementById("proxiesList").innerHTML += "<div class=\"divider\"></div>";
 	}
 }
 
