@@ -40,7 +40,7 @@ function addProxy(id, proxy) {
 	html += "<div class=\"field\"><label for=\"port\">Port</label>" + "<input type=\"number\" name=\"port\" value=\"" + proxy.port + "\"></input></div></div>";
 	html += "<div class=\"fields\"><div class=\"field\"><label for=\"username\">Username</label>" + "<input type=\"text\" name=\"username\" value=\"" + proxy.username + "\"></input></div>";
 	html += "<div class=\"field\"><label for=\"password\">Password</label>" + "<input type=\"password\" name=\"password\" value=\"" + proxy.password + "\"></input></div>";
-	html += "<div class=\"field\"><label for=\"proxyDNS\">Proxy DNS</label><select class=\"browser-style\" name=\"proxyDNS\" value=\"" + proxy.proxyDNS + "\"><option value=\"true\">True</option><option value\"false\">False</option></select></div></div>";
+	html += "<div class=\"field\"><label for=\"proxyDNS\">Proxy DNS</label><select class=\"browser-style\" name=\"proxyDNS\" ><option value=\"true\"" + (proxy.proxyDNS ? " selected" : "") + ">True</option><option value\"false\"" + (proxy.proxyDNS ? "" : " selected") + ">False</option></select></div></div>";
 	if (id !== 0)
 		html += "<button id=\"delete" + id + "\" class=\"delete\" title=\"Delete proxy\" value=\"" + name + "\"></button>";
 	html += "</form>";
@@ -52,7 +52,6 @@ function proxiesLoaded(v) {
 	document.getElementById("proxiesList").innerHTML = "";
 	for (let i=0; i<v.length; i++) {
 		addProxy(i, v[i]);
-		/*if (i != v.length-1) {*/
 		document.getElementById("proxiesList").innerHTML += "<div class=\"divider\"></div>";
 	}
 }
@@ -98,7 +97,6 @@ document.addEventListener("input", e => {
 function addDefaultProxy() {
 	proxies.push(defaultProxy()[0]);
 	proxiesLoaded(proxies);
-	//addProxy("0", defaultProxy()[0]);
 }
 
 function hideOthers() {
@@ -139,7 +137,6 @@ function saveProxySettings() {
 	for (let i=0; i < proxiesDiv.children.length; i++) {
 		children = proxiesDiv.children[i];
 		if (children.className != "divider") {
-			console.log(children);
 			proxy = {
 				'name': children[0].value,
 				'type': children[1].value,
@@ -147,7 +144,7 @@ function saveProxySettings() {
 				'port': children[3].value,
 				'username': children[4].value,
 				'password': children[5].value,
-				'proxyDNS': (children[6].value == 'true')
+				'proxyDNS': (children[6].selectedIndex === 0)
 			}
 			proxies.push(proxy);
 		}
