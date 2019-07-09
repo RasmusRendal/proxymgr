@@ -32,7 +32,6 @@ function defaultProxy() {
 }
 
 function loadProxiesCallback(loaded, callback) {
-	console.log(loaded);
 	if (typeof(loaded) === 'undefined' || Object.keys(loaded).length < 1) {
 		callback(defaultProxy());
 	} else {
@@ -81,7 +80,6 @@ function getSubdomains(url) {
 
 function GeterateProxyDropdownFromProxies(proxies) {
 	html = "<select id=\"IDTEMPLATE\" class=\"browser-style\">"
-	html += "<option value=\"null\">Default</option>";
 	for (let proxy in proxies) {
 		let p = proxies[proxy];
 		html += "<option value=\"" +
@@ -98,7 +96,7 @@ function generateProxyDropdown(callback) {
 
 function setRule(rule, value, callback) {
 	loadRules(rules => {
-		if (value != 'null') {
+		if (value != 0) {
 			rules[rule] = value;
 		} else {
 			delete rules[rule];

@@ -24,7 +24,7 @@ function displayRules() {
 	if (typeof(tabStatus.overwritten_status) != 'undefined') {
 		document.getElementById("perTab").value = tabStatus.overwritten_status;
 	} else {
-		document.getElementById("perTab").value = "null";
+		document.getElementById("perTab").value = "0";
 	}
 
 	for (rule in rules) {
@@ -87,7 +87,6 @@ document.addEventListener("click", e => {
 
 document.addEventListener("change", e => {
 	let name = e.target.id.split("_");
-	console.log(name);
 	if (name.length > 1) {
 		let perm = name[1] == "perm";
 		let id = name[2];
@@ -100,7 +99,6 @@ document.addEventListener("change", e => {
 			});
 		}
 	} else if (name[0] === "perTab") {
-		console.log("temp");
 		browser.runtime.sendMessage({
 			"instruction": "setTabOption",
 			"toEnable": e.target.value
@@ -119,7 +117,6 @@ window.onload = function() {
 }
 
 browser.storage.onChanged.addListener((changes, areaName) => {
-	console.log(changes);
 	if ("rules" in changes) {
 		rules = changes.rules.newValue;
 	}
