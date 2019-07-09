@@ -137,17 +137,20 @@ function saveProxySettings() {
 	proxiesDiv = document.getElementById("proxiesList");
 	proxies = [];
 	for (let i=0; i < proxiesDiv.children.length; i++) {
-		child = proxiesDiv.children[i];
-		proxy = {
-			'name': child[0].value,
-			'type': child[1].value,
-			'host': child[2].value,
-			'port': child[3].value,
-			'username': child[4].value,
-			'password': child[5].value,
-			'proxyDNS': (child[6].value == 'true')
+		children = proxiesDiv.children[i];
+		if (children.className != "divider") {
+			console.log(children);
+			proxy = {
+				'name': children[0].value,
+				'type': children[1].value,
+				'host': children[2].value,
+				'port': children[3].value,
+				'username': children[4].value,
+				'password': children[5].value,
+				'proxyDNS': (children[6].value == 'true')
+			}
+			proxies.push(proxy);
 		}
-		proxies.push(proxy);
 	}
 	browser.storage.sync.set({"proxies": proxies});
 }
