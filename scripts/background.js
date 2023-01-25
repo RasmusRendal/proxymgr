@@ -1,6 +1,6 @@
 /*
  * Proxymgr
- * Copyright © 2019 Rasmus Rendal <rasmus@rend.al>
+ * Copyright © 2023 Rasmus Rendal <rasmus@rend.al>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,13 +56,8 @@ function loadProxy(url, id, tabId) {
 function getRuleMatch(url) {
 	let baseUrl = getBaseUrl(url);
 	for (let rule in rules) {
-		if (rule.substring(0, 1) === '*') {
-			let matchPart = baseUrl.substring(rule.length-3);
-			if (rule.substring(2) === matchPart)
-				return rules[rule];
-		} else if (baseUrl === rule) {
+		if (matches(baseUrl, rule))
 			return rules[rule];
-		}
 	}
 }
 

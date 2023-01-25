@@ -1,6 +1,6 @@
 /*
  * Proxymgr
- * Copyright © 2019 Rasmus Rendal <rasmus@rend.al>
+ * Copyright © 2023 Rasmus Rendal <rasmus@rend.al>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -104,4 +104,13 @@ function setRule(rule, value, callback) {
 		browser.storage.sync.set({"rules": rules});
 		callback(rules);
 	})
+}
+
+function matches(url, rule) {
+	if (rule.substring(0, 1) === '*') {
+		let matchPart = url.substring(url.length - rule.length + 2);
+		if (rule.substring(2) === matchPart)
+			return true;
+	}
+	return url == rule;
 }
