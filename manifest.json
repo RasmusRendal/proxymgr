@@ -36,9 +36,10 @@
 		"browser_style": true
 	},
 
-	"applications": {
+	"browser_specific_settings": {
 		"gecko": {
-			"id": "proxymanager@rend.al"
+			"id": "proxymanager@rend.al",
+			"strict_min_version": "91.1.0"
 		}
 	}
 }
